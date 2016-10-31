@@ -1,8 +1,7 @@
-import csv
-import random
-import math
-import operator
+import csv, random,math, operator, sys
 
+#loading in the training set, the split 2/3
+#TO DO: add in different kinds of splits
 def loadDataset(filename, split, trainingSet=[] , testSet=[]):
 	with open(filename, 'rb') as csvfile:
 	    lines = csv.reader(csvfile)
@@ -15,16 +14,17 @@ def loadDataset(filename, split, trainingSet=[] , testSet=[]):
 	        else:
 	            testSet.append(dataset[x])
 
-
+#function for calculatinng euclidian distnace
+#TO DO: add in differnt distance calcualations
 def euclideanDistance(instance1, instance2, length):
 	distance = 0
-	for x in range(length):
-		distance += pow((instance1[x] - instance2[x]), 2)
+	for x in range(length): distance += pow((instance1[x] - instance2[x]), 2)
 	return math.sqrt(distance)
 
+#getting the k-closest neightbors by whatever distance formula you set 
 def getNeighbors(trainingSet, testInstance, k):
 	distances = []
-	length = len(testInstance)-1
+	length    = len(testInstance)-1
 	for x in range(len(trainingSet)):
 		dist = euclideanDistance(testInstance, trainingSet[x], length)
 		distances.append((trainingSet[x], dist))
@@ -34,6 +34,8 @@ def getNeighbors(trainingSet, testInstance, k):
 		neighbors.append(distances[x][0])
 	return neighbors
 
+#getting the response
+#TO-DO different types of classvoting methods
 def getResponse(neighbors):
 	classVotes = {}
 	for x in range(len(neighbors)):
@@ -45,6 +47,7 @@ def getResponse(neighbors):
 	sortedVotes = sorted(classVotes.iteritems(), key=operator.itemgetter(1), reverse=True)
 	return sortedVotes[0][0]
 
+#getting the overall accuaracy
 def getAccuracy(testSet, predictions):
 	correct = 0
 	for x in range(len(testSet)):
@@ -52,17 +55,17 @@ def getAccuracy(testSet, predictions):
 			correct += 1
 	return (correct/float(len(testSet))) * 100.0
 	
-def main():
+def main(strk):
 	# prepare data
-	trainingSet=[]
-	testSet=[]
-	split = 0.67
+	trainingSet		= []
+	testSet         = []
+	split           = 0.67
 	loadDataset('iris.data', split, trainingSet, testSet)
 	print 'Train set: ' + repr(len(trainingSet))
 	print 'Test set: ' + repr(len(testSet))
 	# generate predictions
 	predictions=[]
-	k = 3
+	k = int(strk)
 	for x in range(len(testSet)):
 		neighbors = getNeighbors(trainingSet, testSet[x], k)
 		result = getResponse(neighbors)
@@ -71,4 +74,4 @@ def main():
 	accuracy = getAccuracy(testSet, predictions)
 	print('Accuracy: ' + repr(accuracy) + '%')
 	
-main()
+main(sys.argv[1])
