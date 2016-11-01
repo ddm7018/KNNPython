@@ -1,4 +1,6 @@
 import csv, random,math, operator, sys
+from math import *
+from decimal import Decimal
 
 #loading in the training set, the split 2/3
 #TO DO: add in different kinds of splits
@@ -14,21 +16,32 @@ def loadDataset(filename, split, trainingSet=[] , testSet=[]):
 	        else:
 	            testSet.append(dataset[x])
 
-#function for calculatinng euclidian distnace
-#TO DO: add in differnt distance calcualations
-def euclideanDistance(instance1, instance2, length):
-	distance = 0
-	for x in range(length): distance += pow((instance1[x] - instance2[x]), 2)
-	return math.sqrt(distance)
+def euclideanDistance(x, y):
+    return sqrt(sum(pow(a-b,2) for a, b in zip(x, y)))
+
+def manhattan_distance(x,y):
+	return sum(abs(a-b) for a,b in zip(x,y))
+
+def square_rooted(x):
+ 	return round(sqrt(sum([a*a for a in x])),3)
+ 
+def cosine_similarity(x,y):
+   numerator = sum(a*b for a,b in zip(x,y))
+   denominator = square_rooted(x)*square_rooted(y)
+   return round(numerator/float(denominator),3)
 
 #getting the k-closest neightbors by whatever distance formula you set 
 def getNeighbors(trainingSet, testInstance, k):
 	distances = []
 	length    = len(testInstance)-1
 	for x in range(len(trainingSet)):
-		dist = euclideanDistance(testInstance, trainingSet[x], length)
+		#print testInstance, trainingSet[x]
+		dist = cosine_similarity(testInstance[:-1], trainingSet[x][:-1])
+		print dist
 		distances.append((trainingSet[x], dist))
-	distances.sort(key=operator.itemgetter(1))
+	#if euclidian or manhatten then different
+	#distances.sort(key=operator.itemgetter(0))
+	distances.sort(key=operator.itemgetter(1), reverse = True)
 	neighbors = []
 	for x in range(k):
 		neighbors.append(distances[x][0])
@@ -57,9 +70,10 @@ def getAccuracy(testSet, predictions):
 	
 def main(strk):
 	# prepare data
+
 	trainingSet		= []
 	testSet         = []
-	split           = 0.67
+	split           = 0.5
 	loadDataset('iris.data', split, trainingSet, testSet)
 	print 'Train set: ' + repr(len(trainingSet))
 	print 'Test set: ' + repr(len(testSet))
