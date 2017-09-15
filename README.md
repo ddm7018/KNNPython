@@ -7,5 +7,5 @@ pass the number of neighbors as an argument
 ```python
 python knn.py 10
 ```
-updated as of 9/7/17
+updated as of 9/15/17
 
